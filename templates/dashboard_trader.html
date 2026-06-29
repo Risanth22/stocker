@@ -1,0 +1,167 @@
+<!-- templates/dashboard_trader.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Trader Dashboard - Stocker</title>
+
+  <link href="{{ url_for('static', filename='img/logo stocker.png') }}" rel="icon" />
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
+</head>
+<body>
+
+<header id="header" class="header d-flex align-items-center fixed-top">
+  <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+    <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-lg-0">
+      <img src="{{ url_for('static', filename='img/logo stocker.png') }}" alt="Stocker logo">
+      <h1 class="sitename">STOCKER</h1><span style="color: #10b981;">.</span>
+    </a>
+    <nav id="navmenu" class="navmenu">
+      <ul class="d-flex align-items-center mb-0">  
+        <li class="dropdown">
+          <a href="#"><span>Trader Services</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a href="{{ url_for('service04') }}">Buy and Trade Stocks</a></li>
+            <li><a href="{{ url_for('service05') }}">My Portfolio</a></li>
+          </ul>
+        </li>
+        <li><a href="{{ url_for('logout') }}" class="btn btn-outline-danger ms-4 px-4 py-2 rounded" style="border-radius: 10px;">Logout</a></li>
+      </ul>
+      <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </nav>
+  </div>
+</header>
+
+<main class="container py-5" style="margin-top: 100px;">
+  <!-- Flash Alerts -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Hero Greetings & Live Index Widgets -->
+  <div class="row align-items-center mb-5 gy-4">
+    <div class="col-lg-6 text-center text-lg-start">
+      <span class="badge bg-success mb-2">Trader Account Panel</span>
+      <h1 class="display-5 fw-bold text-white mb-2" style="font-family: 'Outfit', sans-serif;">Welcome, {{ user.username }}!</h1>
+      <p class="text-muted">Explore market catalogue, execute immediate orders, and trace investment returns.</p>
+    </div>
+    
+    <!-- Live Index Mini Dashboard -->
+    <div class="col-lg-6">
+      <div class="row g-3">
+        <div class="col-6">
+          <div class="metric-card p-3 d-flex flex-column h-100">
+            <span class="metric-title small" style="font-size: 0.75rem;">NIFTY 50 (MOCK LIVE)</span>
+            <span class="metric-value fs-4 mt-2" id="nifty-val">₹23,500.00</span>
+            <span class="text-success small mt-1 font-monospace" id="nifty-pct">+0.42%</span>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="metric-card p-3 d-flex flex-column h-100">
+            <span class="metric-title small" style="font-size: 0.75rem;">SENSEX (MOCK LIVE)</span>
+            <span class="metric-value fs-4 mt-2" id="sensex-val">₹77,200.00</span>
+            <span class="text-danger small mt-1 font-monospace" id="sensex-pct">-0.12%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trader Quick Nav Services Grid -->
+  <div class="row gy-4 mb-5">
+    <div class="col-md-6">
+      <div class="glass-card service-item h-100 position-relative p-4 d-flex flex-column">
+        <div class="icon mb-3"><i class="bi bi-graph-up-arrow"></i></div>
+        <h3 class="text-white fw-bold mb-2">Buy and Trade Stocks</h3>
+        <p class="text-muted small mb-4">Browse through lists of available stocks, review live pricing, and execute instant BUY / SELL orders.</p>
+        <a href="{{ url_for('service04') }}" class="btn btn-success w-100 mt-auto">Open Trading Exchange</a>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="glass-card service-item h-100 position-relative p-4 d-flex flex-column">
+        <div class="icon mb-3"><i class="bi bi-briefcase-fill"></i></div>
+        <h3 class="text-white fw-bold mb-2">My Portfolio & History</h3>
+        <p class="text-muted small mb-4">View your current equity allocations, calculate average buy costs vs market rates, and review logs.</p>
+        <a href="{{ url_for('service05') }}" class="btn btn-success w-100 mt-auto">Open Personal Portfolio</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Market Overview Table -->
+  <div class="glass-panel p-4">
+    <div class="row align-items-center justify-content-between mb-4 gy-2">
+      <div class="col-md-6">
+        <h4 class="text-white fw-bold mb-1" style="font-family: 'Outfit', sans-serif;"><i class="bi bi-globe me-2 text-success"></i>Global Stock Indexes</h4>
+        <p class="text-muted small mb-0">Overview of all active tradeable securities inside DynamoDB databases.</p>
+      </div>
+      <div class="col-md-4">
+        <input type="text" id="market-search" class="form-control" placeholder="Search Symbol, Sector, Company...">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover" id="market-overview-table">
+        <thead>
+            <tr>
+                <th>Ticker</th>
+                <th>Company Name</th>
+                <th class="text-end">Current Price</th>
+                <th>Sector</th>
+                <th class="text-center">Trading Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in market_data %}
+            <tr>
+                <td><span class="badge bg-primary text-uppercase font-monospace">{{ stock.symbol }}</span></td>
+                <td class="text-white fw-bold">{{ stock.name }}</td>
+                <td class="text-end text-success font-monospace fw-bold">₹{{ stock.price }}</td>
+                <td><span class="sector-tag">{{ stock.sector }}</span></td>
+                <td class="text-center">
+                    <a href="{{ url_for('buy_stock', stock_id=stock.id) }}" class="btn btn-sm btn-success px-4" style="border-radius: 8px;">Buy</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not market_data %}
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">No stocks are listed in the market catalog currently.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.setupTableSearch === 'function') {
+      window.setupTableSearch('market-search', 'market-overview-table');
+    }
+    if (typeof window.setupMarketIndices === 'function') {
+      window.setupMarketIndices();
+    }
+  });
+</script>
+</body>
+</html>

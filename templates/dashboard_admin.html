@@ -1,0 +1,118 @@
+<!-- templates/dashboard_admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Admin Dashboard - Stocker</title>
+
+  <link href="{{ url_for('static', filename='img/logo stocker.png') }}" rel="icon" />
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
+</head>
+<body>
+
+<header id="header" class="header d-flex align-items-center fixed-top">
+  <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+    <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-lg-0">
+      <img src="{{ url_for('static', filename='img/logo stocker.png') }}" alt="Stocker logo">
+      <h1 class="sitename">STOCKER</h1>
+      <span style="color: #10b981;">.</span>
+    </a>
+    <nav id="navmenu" class="navmenu">
+      <ul class="d-flex align-items-center mb-0">  
+        <li class="dropdown">
+          <a href="#"><span>Admin Services</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+          <ul>
+            <li><a href="{{ url_for('service01') }}">View Traders</a></li>
+            <li><a href="{{ url_for('service02') }}">View Transactions</a></li>
+            <li><a href="{{ url_for('service03') }}">View Portfolios</a></li>
+          </ul>
+        </li>
+        <li><a href="{{ url_for('logout') }}" class="btn btn-outline-danger ms-4 px-4 py-2 rounded" style="border-radius: 10px;">Logout</a></li>
+      </ul>
+      <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </nav>
+  </div>
+</header>
+
+<main class="container py-5" style="margin-top: 100px;">
+  <!-- Flash alerts block -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="row mb-5">
+    <div class="col-12 text-center text-md-start">
+      <span class="badge bg-primary mb-2">Operations Terminal</span>
+      <h1 class="display-5 fw-bold text-white mb-2" style="font-family: 'Outfit', sans-serif;">System Administrator Control</h1>
+      <p class="text-muted">Cloud infrastructure management, trade surveillance, and audit logs.</p>
+    </div>
+  </div>
+
+  <div class="row gy-4">
+    <!-- View Traders Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="glass-card service-item h-100 position-relative p-4">
+        <div class="icon mb-4"><i class="bi bi-people-fill"></i></div>
+        <h3 class="text-white fw-bold mb-3">View Traders</h3>
+        <p class="text-muted small mb-4">View register info, monitor individual portfolio values, and perform trader account maintenance.</p>
+        <a href="{{ url_for('service01') }}" class="btn btn-success w-100 mt-auto">Open Traders Manager</a>
+      </div>
+    </div>
+
+    <!-- View Transactions Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="glass-card service-item h-100 position-relative p-4">
+        <div class="icon mb-4"><i class="bi bi-file-earmark-bar-graph-fill"></i></div>
+        <h3 class="text-white fw-bold mb-3">View Transactions</h3>
+        <p class="text-muted small mb-4">Audit trade histories. Filter transactions by BUY/SELL actions, and monitor execution pricing.</p>
+        <a href="{{ url_for('service02') }}" class="btn btn-success w-100 mt-auto">Open Transaction Logs</a>
+      </div>
+    </div>
+
+    <!-- View Portfolios Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="glass-card service-item h-100 position-relative p-4">
+        <div class="icon mb-4"><i class="bi bi-pie-chart-fill"></i></div>
+        <h3 class="text-white fw-bold mb-3">View Portfolios</h3>
+        <p class="text-muted small mb-4">Analyze portfolio allocation. Monitor aggregate asset holdings, market values, and sector exposure.</p>
+        <a href="{{ url_for('service03') }}" class="btn btn-success w-100 mt-auto">Open Asset Monitor</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Information Glass Panel -->
+  <div class="glass-panel mt-5 p-4">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h5 class="text-white fw-bold mb-2"><i class="bi bi-cpu me-2 text-success"></i>AWS Cloud Services Connection Status</h5>
+        <p class="text-muted small mb-md-0">Connected to AWS region us-east-1. DynamoDB tables active. Amazon SNS notifications subscribed for automated account actions.</p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <span class="badge bg-success py-2 px-3"><i class="bi bi-hdd-network me-1"></i>DB Connected</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

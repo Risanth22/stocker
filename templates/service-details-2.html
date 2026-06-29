@@ -1,0 +1,196 @@
+<!-- templates/service-details-2.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Transaction Audit Logs - Stocker</title>
+
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='img/logo stocker.png') }}" rel="icon" />
+
+  <!-- Fonts and CSS -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap"
+    rel="stylesheet">
+
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
+</head>
+
+<body>
+
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+      <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-lg-0">
+        <img src="{{ url_for('static', filename='img/logo stocker.png') }}" alt="Stocker logo">
+        <h1 class="sitename">STOCKER</h1>
+        <span style="color: #10b981;">.</span>
+      </a>
+
+      <nav id="navmenu" class="navmenu d-flex align-items-center">
+        <ul class="d-flex align-items-center mb-0">
+          <li><a href="{{ url_for('dashboard_admin') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('service01') }}">View Traders</a></li>
+          <li><a href="{{ url_for('service03') }}">View Portfolios</a></li>
+        </ul>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger ms-4 px-4 py-2 rounded"
+          style="border-radius: 10px;">Logout</a>
+      </nav>
+
+      <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </div>
+  </header>
+
+  <main class="container py-5" style="margin-top: 100px;">
+    <!-- Flash Alerts -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show"
+      role="alert">
+      {{ message }}
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- Stats Indicators -->
+    <div class="row gy-4 mb-4">
+      <div class="col-md-4">
+        <div class="metric-card d-flex align-items-center justify-content-between">
+          <div>
+            <div class="metric-title">Aggregate Transactions</div>
+            <div class="metric-value">{{ transactions|length }}</div>
+          </div>
+          <div class="fs-2 text-primary"><i class="bi bi-journal-text"></i></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="metric-card d-flex align-items-center justify-content-between">
+          <div>
+            <div class="metric-title">Total BUY Orders</div>
+            <div class="metric-value text-success">{{ transactions|selectattr('action', 'equalto', 'buy')|list|length }}
+            </div>
+          </div>
+          <div class="fs-2 text-success"><i class="bi bi-graph-up"></i></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="metric-card d-flex align-items-center justify-content-between">
+          <div>
+            <div class="metric-title">Total SELL Orders</div>
+            <div class="metric-value text-danger">{{ transactions|selectattr('action', 'equalto', 'sell')|list|length }}
+            </div>
+          </div>
+          <div class="fs-2 text-danger"><i class="bi bi-graph-down"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-panel p-4">
+      <div class="row align-items-center justify-content-between mb-4 gy-3">
+        <div class="col-lg-5 col-md-6">
+          <h2 class="text-white fw-bold mb-1" style="font-family: 'Outfit', sans-serif;"><i
+              class="bi bi-file-earmark-bar-graph me-2 text-success"></i>Transaction Audit Logs</h2>
+          <p class="text-muted small mb-0">Surveil, track, and audit trade transactions executed on the Stocker cloud
+            engine.</p>
+        </div>
+        <div class="col-lg-7 col-md-6">
+          <div class="d-flex align-items-center justify-content-md-end gap-2 flex-wrap">
+            <div class="btn-group border border-secondary" style="border-radius: 8px; overflow: hidden;">
+              <button type="button" class="btn btn-sm btn-secondary filter-btn active" data-filter="all">All</button>
+              <button type="button" class="btn btn-sm btn-secondary filter-btn" data-filter="buy">Buys</button>
+              <button type="button" class="btn btn-sm btn-secondary filter-btn" data-filter="sell">Sells</button>
+            </div>
+            <input type="text" id="search-tx" class="form-control" placeholder="Search Symbol, User, Date..."
+              style="max-width: 250px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover" id="transaction-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User / Email</th>
+              <th>Ticker / Name</th>
+              <th>Action</th>
+              <th class="text-end">Qty</th>
+              <th class="text-end">Execution Price</th>
+              <th class="text-end">Total Amount</th>
+              <th class="text-center">Status</th>
+              <th class="text-end">Date Executed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for transaction in transactions %}
+            {% if transaction.user is defined and transaction.stock is defined %}
+            <tr>
+              <td class="font-monospace small text-muted" title="{{ transaction.id }}">{{ transaction.id[:8] }}...</td>
+              <td>
+                <span class="text-white fw-bold d-block">{{ transaction.user.username }}</span>
+                <span class="text-muted small font-monospace">{{ transaction.user.email }}</span>
+              </td>
+              <td>
+                <span class="badge bg-primary text-uppercase me-2">{{ transaction.stock.symbol }}</span>
+                <span class="text-white small">{{ transaction.stock.name }}</span>
+              </td>
+              <td class="transaction-action-cell">
+                <span
+                  class="badge {% if transaction.action == 'buy' %}bg-success{% else %}bg-danger{% endif %} text-uppercase">
+                  {{ transaction.action }}
+                </span>
+              </td>
+              <td class="text-end font-monospace text-white">{{ transaction.quantity }}</td>
+              <td class="text-end font-monospace text-muted">₹{{ "%.2f"|format(transaction.price|float) }}</td>
+              <td class="text-end font-monospace text-white fw-bold">₹{{ "%.2f"|format((transaction.quantity|float *
+                transaction.price|float)) }}</td>
+              <td class="text-center">
+                <span class="badge 
+                    {% if transaction.status == 'completed' %}bg-success
+                    {% elif transaction.status == 'pending' %}bg-warning
+                    {% else %}bg-danger{% endif %}">
+                  {{ transaction.status }}
+                </span>
+              </td>
+              <td class="text-end text-muted small font-monospace">
+                {{ transaction.transaction_date.strftime('%Y-%m-%d %H:%M') if transaction.transaction_date else 'N/A' }}
+              </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% if not transactions %}
+            <tr>
+              <td colspan="9" class="text-center py-4 text-muted">No transactions have been recorded in DynamoDB yet.
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- JS Files -->
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof window.setupTableSearch === 'function') {
+        window.setupTableSearch('search-tx', 'transaction-table');
+      }
+      if (typeof window.setupTransactionFilter === 'function') {
+        window.setupTransactionFilter('filter-btn', 'transaction-table');
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,134 @@
+<!-- templates/service-details-4.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Browse Stocks - Stocker</title>
+
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='img/logo stocker.png') }}" rel="icon" />
+
+  <!-- Fonts and CSS -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
+</head>
+<body>
+
+<header id="header" class="header d-flex align-items-center fixed-top">
+  <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+    <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-lg-0">
+      <img src="{{ url_for('static', filename='img/logo stocker.png') }}" alt="Stocker logo">
+      <h1 class="sitename">STOCKER</h1>
+      <span style="color: #10b981;">.</span>
+    </a>
+
+    <nav id="navmenu" class="navmenu d-flex align-items-center">
+      <ul class="d-flex align-items-center mb-0">
+        <li><a href="{{ url_for('dashboard_trader') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('service05') }}">My Portfolio</a></li>
+      </ul>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline-danger ms-4 px-4 py-2 rounded" style="border-radius: 10px;">Logout</a>  
+    </nav>
+    <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+  </div>
+</header>
+
+<main class="container py-5" style="margin-top: 100px;">
+  <!-- Flash Alerts -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="glass-panel p-4">
+    <div class="row align-items-center justify-content-between mb-4 gy-2">
+      <div class="col-md-6">
+        <h2 class="text-white fw-bold mb-1" style="font-family: 'Outfit', sans-serif;"><i class="bi bi-graph-up-arrow text-success me-2"></i>Stock Exchange</h2>
+        <p class="text-muted small mb-0">Select from available trade indexes to start buying or selling.</p>
+      </div>
+      <div class="col-md-4">
+        <input type="text" id="catalog-search" class="form-control" placeholder="Filter company, sector, ticker...">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover" id="catalog-table">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Company Name</th>
+                <th class="text-end">Current Price</th>
+                <th>Sector</th>
+                <th>Industry</th>
+                <th class="text-center">Trading Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+            {% set owns_stock = false %}
+            {% if user and user.get('portfolio') %}
+              {% for item in user.get('portfolio') %}
+                  {% if item.stock_id == stock.id and item.quantity > 0 %}
+                      {% set owns_stock = true %}
+                  {% endif %}
+              {% endfor %}
+            {% endif %}
+            <tr>
+                <td><span class="badge bg-primary text-uppercase font-monospace">{{ stock.symbol }}</span></td>
+                <td class="text-white fw-bold">{{ stock.name }}</td>
+                <td class="text-end text-success font-monospace fw-bold">₹{{ "%.2f"|format(stock.price|float) }}</td>
+                <td><span class="sector-tag">{{ stock.sector }}</span></td>
+                <td class="text-muted small">{{ stock.industry }}</td>
+                <td class="text-center">
+                  <div class="d-flex align-items-center justify-content-center gap-2">
+                    <a href="{{ url_for('buy_stock', stock_id=stock.id) }}" class="btn btn-sm btn-success px-3" style="border-radius: 8px;">Buy</a>
+                    {% if owns_stock %}
+                        <a href="{{ url_for('sell_stock', stock_id=stock.id) }}" class="btn btn-sm btn-danger px-3" style="border-radius: 8px;">Sell</a>
+                    {% else %}
+                        <a href="#" class="btn btn-sm btn-outline-secondary px-3" style="border-radius: 8px; border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;" onclick="checkOwnership('{{ stock.symbol }}'); return false;">Sell</a>
+                    {% endif %}
+                  </div>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not stocks %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">No stock listings available currently in the system.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+    function checkOwnership(symbol) {
+        alert("You do not hold any shares of " + symbol + " in your active portfolio. Purchase some shares before trying to sell!");
+    }
+</script>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.setupTableSearch === 'function') {
+      window.setupTableSearch('catalog-search', 'catalog-table');
+    }
+  });
+</script>
+</body>
+</html>

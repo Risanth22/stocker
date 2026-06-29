@@ -1,0 +1,204 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stocker - Cloud-Based Stock Trading Platform</title>
+  
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='img/logo stocker.png') }}" rel="icon" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Vendor & Main CSS -->
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+
+</head>
+
+<body class="index-page">
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+      <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-lg-0">
+        <img src="{{ url_for('static', filename='img/logo stocker.png') }}" alt="Stocker logo">
+        <h1 class="sitename">STOCKER</h1>
+        <span style="color: #10b981;">.</span>
+      </a>
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="#hero" class="active">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#services">Services</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+      
+      <div class="d-flex align-items-center">
+        {% if session.get('email') %}
+          {% if session.get('role') == 'admin' %}
+            <a class="btn btn-success me-2" href="{{ url_for('dashboard_admin') }}">Dashboard</a>
+          {% else %}
+            <a class="btn btn-success me-2" href="{{ url_for('dashboard_trader') }}">Dashboard</a>
+          {% endif %}
+          <a class="btn btn-outline-danger ms-2 px-3 py-1.5" href="{{ url_for('logout') }}" style="border-radius: 10px;">Logout</a>
+        {% else %}
+          <a class="btn btn-success" href="{{ url_for('login') }}">Login/Signup</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Hero Section -->
+    <section id="hero" class="hero section dark-background d-flex align-items-center" style="min-height: 80vh; padding-top: 100px;">
+      <div class="container text-center" data-aos="fade-up" data-aos-delay="100">
+        <div class="row justify-content-center">
+          <div class="col-xl-8 col-lg-10">
+            <h1 class="display-3 fw-bold mb-4" style="font-family: 'Outfit', sans-serif; background: linear-gradient(to right, #ffffff, #10b981); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+              Cloud-Native Stock Trading
+            </h1>
+            <p class="lead text-muted mb-5">Experience lightning-fast transactions, robust DynamoDB security, and real-time portfolio management on AWS.</p>
+            {% if not session.get('email') %}
+              <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('login') }}" class="btn btn-success btn-lg px-5 py-3">Start Trading Now</a>
+                <a href="#about" class="btn btn-secondary btn-lg px-5 py-3">Learn More</a>
+              </div>
+            {% else %}
+              <div class="d-flex justify-content-center">
+                {% if session.get('role') == 'admin' %}
+                  <a href="{{ url_for('dashboard_admin') }}" class="btn btn-success btn-lg px-5 py-3">Go to Admin Dashboard</a>
+                {% else %}
+                  <a href="{{ url_for('dashboard_trader') }}" class="btn btn-success btn-lg px-5 py-3">Go to Trader Dashboard</a>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about section py-5" style="background: rgba(15, 23, 42, 0.3);">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-5 align-items-center">
+          <div class="col-lg-6">
+            <div class="glass-card p-2" style="border-radius: 24px;">
+              <img src="{{ url_for('static', filename='img/about.jpg') }}" class="img-fluid" style="border-radius: 20px;" alt="Trading platform interface preview">
+            </div>
+          </div>
+          <div class="col-lg-6 content ps-lg-5">
+            <h2 class="display-5 fw-bold mb-3" style="font-family: 'Outfit', sans-serif; color: #ffffff;">Empowering Your Financial Trades</h2>
+            <p class="fst-italic text-success mb-4" style="font-size: 1.1rem;">Experience seamless stock trading in the cloud.</p>
+            <p class="mb-4">
+              Stocker offers a cloud-native stock trading platform that revolutionizes the way you invest.
+              Our service provides real-time stock transactions, portfolio tracking, and instant market insights.
+            </p>
+            <p class="mb-4">
+              With a robust backend built on Flask and AWS EC2, combined with secure data storage 
+              in Amazon DynamoDB, our platform delivers high performance, high availability, and dynamic scalability. 
+            </p>
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-shield-check text-success fs-3 me-3"></i>
+                  <div>
+                    <h5 class="mb-1 text-white">AWS Secured</h5>
+                    <p class="mb-0 text-muted small">Top tier IAM and DynamoDB security.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-lightning-charge text-success fs-3 me-3"></i>
+                  <div>
+                    <h5 class="mb-1 text-white">Instant Order Execution</h5>
+                    <p class="mb-0 text-muted small">Low latency trading engine.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services section py-5">
+      <div class="container section-title text-center mb-5" data-aos="fade-in">
+        <h2 class="display-5 fw-bold" style="font-family: 'Outfit', sans-serif; color: #ffffff;">Our Services</h2>
+        <p class="text-muted">High-performance trading services at your fingertips</p>
+      </div>
+
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-activity"></i>
+              </div>
+              <a class="stretched-link" href="{{ url_for('login') }}"></a>
+              <h3 class="h4 text-white fw-bold mb-3">Secure user authentication</h3>
+              <p class="text-muted">Protect your trading account with advanced security features, session tracking, and AWS notification alerts.</p>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-broadcast"></i>
+              </div>
+              <a class="stretched-link" href="{{ url_for('login') }}"></a>
+              <h3 class="h4 text-white fw-bold mb-3">Real-time trade execution</h3>
+              <p class="text-muted">Experience lightning-fast trade execution for optimal market opportunities, instantly recorded into DynamoDB transaction records.</p>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-easel"></i>
+              </div>
+              <a class="stretched-link" href="{{ url_for('login') }}"></a>
+              <h3 class="h4 text-white fw-bold mb-3">Portfolio tracking</h3>
+              <p class="text-muted">Monitor your investments effortlessly, view performance statistics, average cost calculations, and live valuation details.</p>
+            </div>
+          </div><!-- End Service Item -->
+        </div>
+      </div>
+    </section><!-- /Services Section -->
+  </main>
+
+  <footer id="footer" class="footer dark-background py-5" style="border-top: 1px solid rgba(255, 255, 255, 0.05); background: #070a12;">
+    <div class="container text-center">
+      <div class="row justify-content-center mb-4">
+        <div class="col-lg-6">
+          <h4 class="sitename text-white mb-2">STOCKER</h4>
+          <p class="text-muted small">Gachibowli, Hyderabad, Telangana 500032</p>
+        </div>
+      </div>
+      <p class="mb-0 text-muted small">© Copyright <strong>Stocker</strong>. All Rights Reserved</p>
+    </div>
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/aos/aos.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/swiper/swiper-bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/glightbox/js/glightbox.min.js') }}"></script>
+
+  <!-- Main JS File -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

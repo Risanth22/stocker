@@ -1,0 +1,218 @@
+<!-- templates/service-details-3.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Global Portfolios Monitor - Stocker</title>
+
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='img/logo stocker.png') }}" rel="icon" />
+
+  <!-- Fonts and CSS -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
+</head>
+<body>
+
+<header id="header" class="header d-flex align-items-center fixed-top">
+  <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+    <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-lg-0">
+      <img src="{{ url_for('static', filename='img/logo stocker.png') }}" alt="Stocker logo">
+      <h1 class="sitename">STOCKER</h1>
+      <span style="color: #10b981;">.</span>
+    </a>
+
+    <nav id="navmenu" class="navmenu d-flex align-items-center">
+      <ul class="d-flex align-items-center mb-0">
+        <li><a href="{{ url_for('dashboard_admin') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('service01') }}">View Traders</a></li>
+        <li><a href="{{ url_for('service02') }}">View Transactions</a></li>
+      </ul>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline-danger ms-4 px-4 py-2 rounded" style="border-radius: 10px;">Logout</a>  
+    </nav>
+
+    <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+  </div>
+</header>
+
+<main class="container content-section py-5" style="margin-top: 100px;">
+  <!-- Flash Alerts -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Stats Indicators -->
+  <div class="row gy-4 mb-4">
+    <div class="col-md-4">
+      <div class="metric-card d-flex align-items-center justify-content-between">
+        <div>
+          <div class="metric-title">Aggregate Market Valuation</div>
+          <div class="metric-value text-success">₹{{ "%.2f"|format(total_portfolio_value|float) }}</div>
+        </div>
+        <div class="fs-2 text-success"><i class="bi bi-wallet2"></i></div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="metric-card d-flex align-items-center justify-content-between">
+        <div>
+          <div class="metric-title">Traders holding portfolios</div>
+          <div class="metric-value">{{ portfolios|map(attribute='user_id')|unique|list|length }}</div>
+        </div>
+        <div class="fs-2 text-primary"><i class="bi bi-person-badge"></i></div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="metric-card d-flex align-items-center justify-content-between">
+        <div>
+          <div class="metric-title">Unique assets held</div>
+          <div class="metric-value text-warning">{{ portfolios|map(attribute='stock_id')|unique|list|length }}</div>
+        </div>
+        <div class="fs-2 text-warning"><i class="bi bi-layers-half"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-panel p-4 mb-5">
+    <div class="row align-items-center justify-content-between mb-4 gy-3">
+      <div class="col-md-6">
+        <h2 class="text-white fw-bold mb-1" style="font-family: 'Outfit', sans-serif;"><i class="bi bi-graph-up-arrow text-success me-2"></i>Global Portfolios Monitor</h2>
+        <p class="text-muted small mb-0">Aggregate view of active trader inventory, price values, and market valuations.</p>
+      </div>
+      <div class="col-md-4">
+        <input type="text" id="search-portfolio" class="form-control w-100" placeholder="Search Symbol, User, Cost...">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover" id="portfolio-table">
+        <thead>
+            <tr>
+                <th>Trader Profile</th>
+                <th>Asset Name</th>
+                <th>Ticker Symbol</th>
+                <th>Sector</th>
+                <th class="text-end">Qty Held</th>
+                <th class="text-end">Avg cost price</th>
+                <th class="text-end">Current Price</th>
+                <th class="text-end">Market Valuation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for portfolio in portfolios %}
+            {% if portfolio.user is defined and portfolio.stock is defined %}
+            <tr>
+                <td class="text-white fw-bold">{{ portfolio.user.username }}</td>
+                <td>{{ portfolio.stock.name }}</td>
+                <td><span class="badge bg-primary text-uppercase">{{ portfolio.stock.symbol }}</span></td>
+                <td><span class="sector-tag">{{ portfolio.stock.sector }}</span></td>
+                <td class="text-end font-monospace text-white">{{ portfolio.quantity }}</td>
+                <td class="text-end font-monospace text-muted">₹{{ "%.2f"|format(portfolio.average_price|float) }}</td>
+                <td class="text-end font-monospace text-muted">₹{{ "%.2f"|format(portfolio.stock.price|float) }}</td>
+                <td class="text-end font-monospace text-success fw-bold">₹{{ "%.2f"|format((portfolio.stock.price|float * portfolio.quantity|float)) }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% if not portfolios %}
+            <tr>
+              <td colspan="8" class="text-center py-4 text-muted">No portfolio entries available in database.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sector Distribution Grid -->
+  <div class="glass-panel p-4">
+    <h4 class="text-white fw-bold mb-3" style="font-family: 'Outfit', sans-serif;"><i class="bi bi-pie-chart me-2 text-success"></i>Sector Allocation Summary</h4>
+    <p class="text-muted small mb-4">Total value and relative holdings distribution across industries.</p>
+    
+    <div class="row gy-4" id="sector-container">
+      <!-- Populated via client-side JavaScript -->
+    </div>
+
+    <!-- Hidden data for JavaScript consumption, preventing IDE syntax highlighting errors -->
+    <div id="portfolio-data" style="display: none;" data-total-value="{{ total_portfolio_value|default(0)|float }}">
+      {% for portfolio in portfolios %}
+        {% if portfolio.stock is defined %}
+          <div class="portfolio-item" 
+               data-sector="{{ portfolio.stock.sector }}" 
+               data-value="{{ portfolio.stock.price|float * portfolio.quantity|float }}">
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</main>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.setupTableSearch === 'function') {
+      window.setupTableSearch('search-portfolio', 'portfolio-table');
+    }
+
+    var dataEl = document.getElementById('portfolio-data');
+    if (!dataEl) return;
+
+    var totalPortfolioValue = parseFloat(dataEl.getAttribute('data-total-value')) || 0;
+    var itemElements = dataEl.getElementsByClassName('portfolio-item');
+    var sectors = {};
+
+    for (var i = 0; i < itemElements.length; i++) {
+      var el = itemElements[i];
+      var sector = el.getAttribute('data-sector');
+      var value = parseFloat(el.getAttribute('data-value')) || 0;
+      if (sectors[sector]) {
+        sectors[sector] += value;
+      } else {
+        sectors[sector] = value;
+      }
+    }
+
+    var container = document.getElementById('sector-container');
+    if (!container) return;
+
+    var sectorNames = Object.keys(sectors);
+    if (sectorNames.length === 0) {
+      container.innerHTML = '<div class="col-12 text-center text-muted small py-3">No sector holdings available to visualize.</div>';
+      return;
+    }
+
+    for (var j = 0; j < sectorNames.length; j++) {
+      var sName = sectorNames[j];
+      var val = sectors[sName];
+      var percentage = totalPortfolioValue > 0 ? (val / totalPortfolioValue * 100).toFixed(1) : 0;
+      
+      var cardHtml = 
+        '<div class="col-md-3 mb-3">' +
+          '<div class="glass-card h-100 p-3">' +
+            '<div class="text-muted small text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">' + sName + '</div>' +
+            '<div class="fs-4 fw-bold text-white mb-2">₹' + val.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</div>' +
+            '<div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.06); border-radius: 3px;">' +
+              '<div class="progress-bar bg-success" role="progressbar" style="width: ' + percentage + '%;" aria-valuenow="' + percentage + '" aria-valuemin="0" aria-valuemax="100"></div>' +
+            '</div>' +
+            '<div class="text-end text-muted small mt-1" style="font-size: 0.7rem;">' + percentage + '% share</div>' +
+          '</div>' +
+        '</div>';
+      container.insertAdjacentHTML('beforeend', cardHtml);
+    }
+  });
+</script>
+</body>
+</html>

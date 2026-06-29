@@ -1,0 +1,84 @@
+<!-- templates/signup.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Signup - Stocker</title>
+
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='img/logo stocker.png') }}" rel="icon" />
+
+  <!-- Fonts & CSS --> 
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor & Main CSS -->
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
+</head>
+<body class="d-flex align-items-center justify-content-center" style="min-height: 100vh; padding: 20px;">
+
+  <div class="glass-panel w-100" style="max-width: 450px;">
+    <div class="text-center mb-4">
+      <a href="{{ url_for('index') }}" class="d-inline-flex align-items-center mb-3">
+        <img src="{{ url_for('static', filename='img/logo stocker.png') }}" alt="Stocker Logo" style="height: 40px; margin-right: 10px;">
+        <h2 class="m-0 fw-bold text-white" style="font-family: 'Outfit', sans-serif; letter-spacing: 1px;">STOCKER</h2>
+      </a>
+      <h4 class="text-white fw-bold mb-1">Create Account</h4>
+      <p class="text-muted small">Register your new stock trading profile</p>
+    </div>
+
+    <!-- Flask Flashed Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/signup">
+      <div class="mb-3">
+        <label for="role" class="form-label">Select Profile Role</label>
+        <select class="form-select" id="role" name="role" required>
+          <option value="" disabled selected>Choose your role...</option>
+          <option value="trader">Trader (Self-Directed Trading)</option>
+          <option value="admin">Admin (System Operations)</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="johndoe" required autocomplete="username" />
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email Address</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="name@example.com" required autocomplete="email" />
+      </div>
+
+      <div class="mb-4">
+        <label for="password" class="form-label">Security Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="new-password" />
+      </div>
+
+      <button type="submit" class="btn btn-success w-100 py-2.5 mb-3">Register Profile</button>
+    </form>
+
+    <div class="text-center mt-4 pt-3 border-top" style="border-color: rgba(255,255,255,0.06) !important;">
+      <p class="mb-0 text-muted small">
+        Already have an account? <a href="{{ url_for('login') }}" class="text-success fw-bold">Login here</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Vendor JS & main JS -->
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

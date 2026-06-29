@@ -1,0 +1,128 @@
+<!-- templates/sell_stock.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Sell Stock - Stocker</title>
+
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='img/logo stocker.png') }}" rel="icon" />
+
+  <!-- Fonts and CSS -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
+</head>
+<body class="d-flex align-items-center justify-content-center" style="min-height: 100vh; padding: 20px;">
+
+  <div class="glass-panel w-100" style="max-width: 500px;">
+    <!-- Navigation Back -->
+    <div class="mb-4">
+      <a href="{{ url_for('service04') }}" class="text-success small fw-bold d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i> Back to Exchange
+      </a>
+    </div>
+
+    <div class="text-center mb-4">
+      <span class="badge bg-danger text-uppercase font-monospace mb-2" style="font-size: 0.85rem; padding: 6px 12px;">{{ stock.symbol }}</span>
+      <h3 class="text-white fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">{{ stock.name }}</h3>
+      <p class="text-muted small">Current market rate: <strong class="text-success">₹{{ "%.2f"|format(stock.price|float) }}</strong></p>
+      
+      <!-- Owned holdings card snippet -->
+      <div class="p-2.5 rounded bg-light border border-secondary mt-3 d-inline-block small" style="background-color: rgba(255,255,255,0.03) !important;">
+        <span class="text-muted">You hold: </span>
+        <strong class="text-white">{{ portfolio_entry.quantity }} shares</strong>
+        <span class="text-muted ms-2">Cost: </span>
+        <strong class="text-white">₹{{ "%.2f"|format(portfolio_entry.average_price|float) }}</strong>
+      </div>
+    </div>
+
+    <!-- Flask Flashed Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="mb-4">
+        <label for="quantity" class="form-label">Sell Quantity (Shares)</label>
+        <input type="number" class="form-control text-center fs-4 fw-bold" id="quantity" name="quantity" min="1" max="{{ portfolio_entry.quantity }}" placeholder="0" required autofocus>
+        <div class="form-text text-muted text-center mt-2">Maximum trade limit: {{ portfolio_entry.quantity }} shares.</div>
+      </div>
+      
+      <!-- Live Calculation indicators -->
+      <div class="row g-3 mb-4">
+        <div class="col-6">
+          <div class="metric-card text-center py-2 px-1">
+            <span class="metric-title small" style="font-size: 0.7rem;">EST. PROCEEDS</span>
+            <span class="metric-value fs-5 mt-1 font-monospace text-white" id="display-total">₹0.00</span>
+            <input type="hidden" id="total">
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="metric-card text-center py-2 px-1">
+            <span class="metric-title small" style="font-size: 0.7rem;">EST. RETURN</span>
+            <span class="metric-value fs-5 mt-1 font-monospace text-muted" id="display-profitLoss">₹0.00</span>
+            <input type="hidden" id="profitLoss">
+          </div>
+        </div>
+      </div>
+      
+      <div class="row g-2">
+        <div class="col-6">
+          <a href="{{ url_for('service04') }}" class="btn btn-secondary w-100 py-2.5">Cancel</a>
+        </div>
+        <div class="col-6">
+          <button type="submit" class="btn btn-danger w-100 py-2.5">Confirm Sale</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('quantity').addEventListener('input', function() {
+        const quantity = parseInt(this.value) || 0;
+        const currentPrice = parseFloat("{{ stock.price }}");
+        const avgPrice = parseFloat("{{ portfolio_entry.average_price }}");
+        
+        // proceeds
+        const total = (quantity * currentPrice).toFixed(2);
+        document.getElementById('total').value = total;
+        document.getElementById('display-total').textContent = '₹' + parseFloat(total).toLocaleString('en-IN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        
+        // profit loss
+        const profitLoss = (quantity * (currentPrice - avgPrice)).toFixed(2);
+        document.getElementById('profitLoss').value = profitLoss;
+        
+        const displayPL = document.getElementById('display-profitLoss');
+        displayPL.textContent = (parseFloat(profitLoss) >= 0 ? '+' : '') + '₹' + parseFloat(profitLoss).toLocaleString('en-IN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        
+        if (parseFloat(profitLoss) >= 0) {
+            displayPL.className = 'metric-value fs-5 mt-1 font-monospace text-success';
+        } else {
+            displayPL.className = 'metric-value fs-5 mt-1 font-monospace text-danger';
+        }
+    });
+  </script>
+
+  <!-- Vendor JS Files -->
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>
