@@ -34,9 +34,9 @@ dynamodb = boto3_session.resource('dynamodb')
 
 # Define table names
 USER_TABLE = 'stocker_users4'
-STOCK_TABLE = 'stocker_stocks'
-TRANSACTION_TABLE = 'stocker_transactions'
-PORTFOLIO_TABLE = 'stocker_portfolio'
+STOCK_TABLE = 'stocker_stocks4'
+TRANSACTION_TABLE = 'stocker_transactions4'
+PORTFOLIO_TABLE = 'stocker_portfolio4'
 
 # Helper class for DynamoDB item serialization
 class DecimalEncoder(json.JSONEncoder):
