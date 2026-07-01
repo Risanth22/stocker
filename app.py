@@ -33,7 +33,7 @@ else:
 dynamodb = boto3_session.resource('dynamodb')
 
 # Define table names
-USER_TABLE = 'stocker_users'
+USER_TABLE = 'stocker_users4'
 STOCK_TABLE = 'stocker_stocks'
 TRANSACTION_TABLE = 'stocker_transactions'
 PORTFOLIO_TABLE = 'stocker_portfolio'
